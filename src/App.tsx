@@ -1,0 +1,74 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AppShell } from "@/components/app/AppShell";
+
+// Staff pages
+import StaffDashboard from "@/pages/staff/Dashboard";
+import Approvals from "@/pages/staff/Approvals";
+import Cases from "@/pages/staff/Cases";
+import Operators from "@/pages/staff/Operators";
+import OperatorDetail from "@/pages/staff/OperatorDetail";
+import Sites from "@/pages/staff/Sites";
+import Equipment from "@/pages/staff/Equipment";
+import Tickets from "@/pages/staff/Tickets";
+import Payments from "@/pages/staff/Payments";
+import Reports from "@/pages/staff/Reports";
+import Announcements from "@/pages/staff/Announcements";
+import Branding from "@/pages/staff/Branding";
+import Coverage from "@/pages/staff/Coverage";
+import Security from "@/pages/staff/Security";
+
+// Operator pages
+import OperatorDashboard from "@/pages/operator/Dashboard";
+import NewSubmission from "@/pages/operator/NewSubmission";
+import Submissions from "@/pages/operator/Submissions";
+import MySites from "@/pages/operator/MySites";
+import MyEquipment from "@/pages/operator/MyEquipment";
+import MyTickets from "@/pages/operator/MyTickets";
+import MyAccount from "@/pages/operator/MyAccount";
+import Documents from "@/pages/operator/Documents";
+import OperatorAnnouncements from "@/pages/operator/Announcements";
+import AccessibilitySettings from "@/pages/operator/Accessibility";
+
+// Shared
+import CaseDetail from "@/pages/shared/CaseDetail";
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route path="/" element={<Navigate to="/staff" replace />} />
+
+        {/* Staff */}
+        <Route path="/staff" element={<StaffDashboard />} />
+        <Route path="/staff/approvals" element={<Approvals />} />
+        <Route path="/staff/cases" element={<Cases />} />
+        <Route path="/staff/cases/:id" element={<CaseDetail />} />
+        <Route path="/staff/operators" element={<Operators />} />
+        <Route path="/staff/operators/:id" element={<OperatorDetail />} />
+        <Route path="/staff/sites" element={<Sites />} />
+        <Route path="/staff/equipment" element={<Equipment />} />
+        <Route path="/staff/tickets" element={<Tickets />} />
+        <Route path="/staff/payments" element={<Payments />} />
+        <Route path="/staff/reports" element={<Reports />} />
+        <Route path="/staff/announcements" element={<Announcements />} />
+        <Route path="/staff/branding" element={<Branding />} />
+        <Route path="/staff/coverage" element={<Coverage />} />
+        <Route path="/staff/security" element={<Security />} />
+
+        {/* Operator */}
+        <Route path="/operator" element={<OperatorDashboard />} />
+        <Route path="/operator/new" element={<NewSubmission />} />
+        <Route path="/operator/new/:formId" element={<NewSubmission />} />
+        <Route path="/operator/submissions" element={<Submissions />} />
+        <Route path="/operator/submissions/:id" element={<CaseDetail />} />
+        <Route path="/operator/sites" element={<MySites />} />
+        <Route path="/operator/equipment" element={<MyEquipment />} />
+        <Route path="/operator/tickets" element={<MyTickets />} />
+        <Route path="/operator/account" element={<MyAccount />} />
+        <Route path="/operator/documents" element={<Documents />} />
+        <Route path="/operator/announcements" element={<OperatorAnnouncements />} />
+        <Route path="/operator/accessibility" element={<AccessibilitySettings />} />
+      </Route>
+    </Routes>
+  );
+}

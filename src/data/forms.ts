@@ -1,0 +1,237 @@
+import type { BenForm } from "@/types";
+
+/**
+ * The 10 BEN forms, defined as data. A single FormRenderer renders any of
+ * them; a single workflow engine routes them. This mirrors the real product's
+ * config-driven form-builder + workflow philosophy — adding a form is data,
+ * not code. Initiators, approval chains, and the reverse-init (operator signs)
+ * pattern reflect the confirmed RFP/Q&A scope decisions.
+ */
+export const BEN_FORMS: BenForm[] = [
+  {
+    id: "pnl",
+    code: "BEN-1",
+    title: "P&L Monthly Statement",
+    shortTitle: "P&L Statement",
+    description:
+      "Consolidated per site, per month (due the 20th). Auto-computes totals, net profit, and the set-aside due to BEN.",
+    initiatedBy: "operator",
+    approvalChain: ["beo", "chief"],
+    frequency: "Monthly · per site · due the 20th",
+    category: "financial",
+    producesPayment: "inbound",
+    rfpRef: "FM-1 · Req/Q40",
+    sections: ["Revenue", "Expenses", "Computed Results"],
+    fields: [
+      { key: "period", label: "Reporting Period", type: "text", required: true, section: "Revenue", readOnly: true, placeholder: "August 2026" },
+      { key: "rev_taxable", label: "Taxable Sales", type: "currency", required: true, section: "Revenue", help: "Sales subject to sales tax" },
+      { key: "rev_nontaxable", label: "Non-Taxable Sales", type: "currency", required: true, section: "Revenue" },
+      { key: "rev_vending", label: "Vending Income", type: "currency", required: true, section: "Revenue" },
+      { key: "rev_total", label: "Total Revenue", type: "computed", computeKind: "sum", computeFrom: ["rev_taxable", "rev_nontaxable", "rev_vending"], section: "Revenue", colSpan: 2 },
+      { key: "exp_cogs", label: "Cost of Goods Sold", type: "currency", required: true, section: "Expenses" },
+      { key: "exp_operating", label: "Operating Expenses", type: "currency", required: true, section: "Expenses" },
+      { key: "exp_payroll", label: "Payroll", type: "currency", required: true, section: "Expenses" },
+      { key: "exp_total", label: "Total Expenses", type: "computed", computeKind: "sum", computeFrom: ["exp_cogs", "exp_operating", "exp_payroll"], section: "Expenses", colSpan: 2 },
+      { key: "net_profit", label: "Net Profit", type: "computed", computeKind: "profit", section: "Computed Results", colSpan: 2 },
+      { key: "set_aside", label: "Set-Aside Due to BEN", type: "computed", computeKind: "setaside", section: "Computed Results", colSpan: 2, help: "Net profit × program set-aside rate (configurable — not hardcoded)" },
+    ],
+  },
+  {
+    id: "site-review-monthly",
+    code: "BEN-2",
+    title: "Monthly Site Review",
+    shortTitle: "Monthly Site Review",
+    description:
+      "Staff-initiated inspection. The BEO completes it; the Operator reviews, comments, and signs an acknowledgement (reverse initiation).",
+    initiatedBy: "beo",
+    approvalChain: ["chief"],
+    operatorAcknowledges: true,
+    frequency: "Monthly · per site",
+    category: "review",
+    rfpRef: "FM-3 · Req",
+    sections: ["Inspection", "Findings"],
+    fields: [
+      { key: "cleanliness", label: "Cleanliness & Sanitation", type: "select", options: ["Excellent", "Satisfactory", "Needs Improvement", "Unsatisfactory"], required: true, section: "Inspection" },
+      { key: "stocking", label: "Stocking & Product Rotation", type: "select", options: ["Excellent", "Satisfactory", "Needs Improvement", "Unsatisfactory"], required: true, section: "Inspection" },
+      { key: "equipment_condition", label: "Equipment Condition", type: "select", options: ["Excellent", "Satisfactory", "Needs Improvement", "Unsatisfactory"], required: true, section: "Inspection" },
+      { key: "compliance", label: "Program Compliance", type: "select", options: ["Compliant", "Minor Issues", "Non-Compliant"], required: true, section: "Inspection" },
+      { key: "findings", label: "BEO Findings & Corrective Actions", type: "textarea", section: "Findings", colSpan: 2, required: true },
+      { key: "operator_comment", label: "Operator Comments", type: "textarea", section: "Findings", colSpan: 2, help: "Operator adds comments before signing" },
+    ],
+  },
+  {
+    id: "site-review-annual",
+    code: "BEN-3",
+    title: "Annual Site Review",
+    shortTitle: "Annual Site Review",
+    description:
+      "Expanded annual inspection, pre-filled with 12 months of P&L and equipment history. Staff-initiated; Operator signs. Feeds license renewal & Interim graduation.",
+    initiatedBy: "beo",
+    approvalChain: ["chief"],
+    operatorAcknowledges: true,
+    frequency: "Annual · per site",
+    category: "review",
+    rfpRef: "FM-3 · Req",
+    sections: ["Financial Health", "Operations", "Performance"],
+    fields: [
+      { key: "annual_revenue", label: "Trailing 12-mo Revenue", type: "currency", section: "Financial Health", readOnly: true },
+      { key: "annual_setaside", label: "Trailing 12-mo Set-Aside Paid", type: "currency", section: "Financial Health", readOnly: true },
+      { key: "equipment_audit", label: "Equipment Audit Result", type: "select", options: ["All Accounted", "Discrepancies Found"], required: true, section: "Operations" },
+      { key: "contract_compliance", label: "Host-Agency Contract Compliance", type: "select", options: ["Compliant", "Action Required"], required: true, section: "Operations" },
+      { key: "performance_rating", label: "Operator Performance Rating", type: "select", options: ["Exceeds", "Meets", "Below"], required: true, section: "Performance" },
+      { key: "performance_note", label: "Chief Performance Note", type: "textarea", section: "Performance", colSpan: 2 },
+    ],
+  },
+  {
+    id: "purchase-request",
+    code: "BEN-4",
+    title: "Request to Purchase Equipment",
+    shortTitle: "Purchase Request",
+    description:
+      "Operator requests equipment. BEO checks the warehouse first. Requests over $200 require Chief approval; staff then create the equipment record.",
+    initiatedBy: "operator",
+    approvalChain: ["beo", "chief"],
+    frequency: "As needed",
+    category: "equipment",
+    rfpRef: "FM-2 · Req",
+    sections: ["Request", "Justification"],
+    fields: [
+      { key: "item", label: "Equipment / Item", type: "text", required: true, section: "Request" },
+      { key: "category", label: "Category", type: "select", options: ["Refrigeration", "Coffee Equipment", "Vending Machine", "POS / IT", "Fixtures", "Other"], required: true, section: "Request" },
+      { key: "est_cost", label: "Estimated Cost", type: "currency", required: true, section: "Request", help: "Over $200 routes to Chief for final approval" },
+      { key: "quantity", label: "Quantity", type: "number", required: true, section: "Request", min: 1 },
+      { key: "justification", label: "Business Justification", type: "textarea", required: true, section: "Justification", colSpan: 2 },
+    ],
+  },
+  {
+    id: "insurance-enrollment",
+    code: "BEN-5",
+    title: "Health Insurance Enrollment",
+    shortTitle: "Insurance Enrollment",
+    description:
+      "Submitted once, at licensing. A permanent record that turns on medical-reimbursement eligibility.",
+    initiatedBy: "operator",
+    approvalChain: ["beo", "chief"],
+    frequency: "Once · at licensing",
+    category: "insurance",
+    rfpRef: "FM-4 · Req/Q3",
+    sections: ["Enrollment"],
+    fields: [
+      { key: "plan", label: "Insurance Plan", type: "text", required: true, section: "Enrollment" },
+      { key: "carrier", label: "Carrier", type: "text", required: true, section: "Enrollment" },
+      { key: "member_id", label: "Member ID", type: "text", required: true, section: "Enrollment" },
+      { key: "monthly_premium", label: "Monthly Premium", type: "currency", required: true, section: "Enrollment" },
+      { key: "policy_doc", label: "Policy Document", type: "file", section: "Enrollment", colSpan: 2 },
+    ],
+  },
+  {
+    id: "insurance-reimbursement",
+    code: "BEN-6",
+    title: "Health Insurance Reimbursement",
+    shortTitle: "Insurance Reimbursement",
+    description:
+      "Outbound payment (DETR → Operator) against the Calendar-Year insurance cycle. Requires an active enrollment on file.",
+    initiatedBy: "operator",
+    approvalChain: ["beo", "chief"],
+    frequency: "Recurring · Calendar Year",
+    category: "insurance",
+    producesPayment: "outbound",
+    rfpRef: "FM-4 · Req",
+    sections: ["Claim"],
+    fields: [
+      { key: "claim_type", label: "Claim Type", type: "select", options: ["Medical Premium", "Life Insurance", "Medical Expense"], required: true, section: "Claim" },
+      { key: "amount", label: "Reimbursement Amount", type: "currency", required: true, section: "Claim" },
+      { key: "service_date", label: "Service / Coverage Date", type: "date", required: true, section: "Claim" },
+      { key: "receipt", label: "Receipt / Proof", type: "file", required: true, section: "Claim", colSpan: 2 },
+    ],
+  },
+  {
+    id: "loan-application",
+    code: "BEN-7",
+    title: "Loan Application",
+    shortTitle: "Loan Application",
+    description:
+      "For business startup costs (product, supplies, licenses, payroll). Disbursed as an outbound payment; repaid automatically from monthly P&L profit.",
+    initiatedBy: "operator",
+    approvalChain: ["beo", "chief"],
+    frequency: "As needed",
+    category: "financial",
+    producesPayment: "outbound",
+    rfpRef: "FM-5 · Req/Q4",
+    sections: ["Loan Request", "Repayment"],
+    fields: [
+      { key: "amount", label: "Loan Amount Requested", type: "currency", required: true, section: "Loan Request" },
+      { key: "purpose", label: "Purpose", type: "select", options: ["Initial Stock", "Supplies", "Licenses & Permits", "Payroll", "Equipment", "Other"], required: true, section: "Loan Request" },
+      { key: "detail", label: "Detail", type: "textarea", required: true, section: "Loan Request", colSpan: 2 },
+      { key: "term_months", label: "Requested Term (months)", type: "number", required: true, section: "Repayment", min: 1, max: 60 },
+    ],
+  },
+  {
+    id: "prior-approval",
+    code: "BEN-8",
+    title: "Request for Prior Approval of Expenses",
+    shortTitle: "Prior Approval",
+    description: "Standard two-tier approval, no special routing. Operator requests approval before incurring an expense.",
+    initiatedBy: "operator",
+    approvalChain: ["beo", "chief"],
+    frequency: "As needed",
+    category: "financial",
+    rfpRef: "FM-6 · Req",
+    sections: ["Expense"],
+    fields: [
+      { key: "expense", label: "Proposed Expense", type: "text", required: true, section: "Expense" },
+      { key: "amount", label: "Estimated Amount", type: "currency", required: true, section: "Expense" },
+      { key: "category", label: "Category", type: "select", options: ["Renovation", "Marketing", "Supplies", "Repairs", "Other"], required: true, section: "Expense" },
+      { key: "reason", label: "Reason / Justification", type: "textarea", required: true, section: "Expense", colSpan: 2 },
+    ],
+  },
+  {
+    id: "maintenance-log",
+    code: "BEN-9",
+    title: "Equipment Maintenance Log (Service Ticket)",
+    shortTitle: "Maintenance Ticket",
+    description:
+      "Operator opens a ticket against a specific equipment item. BEO manages the full lifecycle: submitted → under review → assigned → in progress → resolved. Preventive & corrective.",
+    initiatedBy: "operator",
+    approvalChain: ["beo"],
+    frequency: "As needed",
+    category: "equipment",
+    rfpRef: "FM-7 · SR-1/2 · Req/Q31",
+    sections: ["Ticket"],
+    fields: [
+      { key: "equipment", label: "Equipment", type: "select", options: [], required: true, section: "Ticket", help: "Scoped to your site's equipment" },
+      { key: "type", label: "Maintenance Type", type: "select", options: ["Corrective (repair)", "Preventive (scheduled)"], required: true, section: "Ticket" },
+      { key: "summary", label: "Issue Summary", type: "text", required: true, section: "Ticket" },
+      { key: "requested_date", label: "Requested Service Date", type: "date", required: true, section: "Ticket" },
+      { key: "description", label: "Description", type: "textarea", required: true, section: "Ticket", colSpan: 2 },
+    ],
+  },
+  {
+    id: "throw-log",
+    code: "BEN-10",
+    title: "Site Daily Throw Log",
+    shortTitle: "Throw Log",
+    description:
+      "Despite the name, filed once per site per month. Tracks spoiled / expired product. BEO reviews only — no Chief approval.",
+    initiatedBy: "operator",
+    approvalChain: ["beo"],
+    frequency: "Monthly · per site",
+    category: "operational",
+    rfpRef: "FM-8 · Req/Q9/Q45",
+    sections: ["Spoilage"],
+    fields: [
+      { key: "period", label: "Month", type: "text", required: true, section: "Spoilage", placeholder: "August 2026" },
+      { key: "items_thrown", label: "Items Discarded (count)", type: "number", required: true, section: "Spoilage", min: 0 },
+      { key: "est_value", label: "Estimated Value of Spoilage", type: "currency", required: true, section: "Spoilage" },
+      { key: "top_reason", label: "Primary Reason", type: "select", options: ["Expiration", "Damage", "Overstock", "Equipment Failure"], required: true, section: "Spoilage" },
+      { key: "notes", label: "Notes", type: "textarea", section: "Spoilage", colSpan: 2 },
+    ],
+  },
+];
+
+export function formById(id: string): BenForm | undefined {
+  return BEN_FORMS.find((f) => f.id === id);
+}
+
+/** Program-configurable set-aside rate — shown, never hardcoded in logic. */
+export const SET_ASIDE_RATE = 0.03; // 3% placeholder, pending Phase-1 confirmation

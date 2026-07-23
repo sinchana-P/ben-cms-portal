@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   BEN Case Management — Design System
+   Theming (BR-2, 7-slot) + Accessibility (AX-1..5) baked in.
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* shadcn semantic tokens — LIGHT (Staff portal default) */
+    --background: 40 33% 99%;
+    --foreground: 217 33% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 17%;
+
+    --primary: 213 61% 30%;          /* BEN deep blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 214 32% 95%;
+    --secondary-foreground: 213 45% 25%;
+    --muted: 214 30% 95%;
+    --muted-foreground: 215 16% 42%;
+    --accent: 214 40% 94%;
+    --accent-foreground: 213 45% 25%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 24% 88%;
+    --input: 214 24% 86%;
+    --ring: 213 61% 40%;
+
+    /* status (paired with icon + label — never color-only, AX-4) */
+    --success: 151 55% 34%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 151 48% 94%;
+    --warning: 35 92% 40%;
+    --warning-foreground: 0 0% 100%;
+    --warning-soft: 40 90% 94%;
+    --info: 213 70% 42%;
+    --info-foreground: 0 0% 100%;
+    --info-soft: 213 80% 95%;
+
+    /* BEN 7-slot brand theme (editable in Branding module) */
+    --ben-heading: 213 61% 24%;
+    --ben-subheading: 213 30% 38%;
+    --ben-highlight: 38 92% 48%;      /* Nevada gold */
+    --ben-accent: 187 72% 33%;        /* teal accent */
+    --ben-auxiliary: 262 45% 48%;
+    --ben-text-primary: 217 33% 17%;
+    --ben-text-secondary: 215 16% 42%;
+
+    --radius: 0.6rem;
+  }
+
+  /* DARK — Operator portal default (AX-3: dark bg / light font) */
+  .dark {
+    --background: 217 40% 9%;
+    --foreground: 210 30% 96%;
+    --card: 217 36% 13%;
+    --card-foreground: 210 30% 96%;
+    --popover: 217 36% 13%;
+    --popover-foreground: 210 30% 96%;
+
+    --primary: 205 85% 62%;
+    --primary-foreground: 217 45% 10%;
+    --secondary: 217 30% 20%;
+    --secondary-foreground: 210 30% 92%;
+    --muted: 217 28% 20%;
+    --muted-foreground: 215 20% 68%;
+    --accent: 217 30% 22%;
+    --accent-foreground: 210 30% 92%;
+    --destructive: 0 68% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 25% 26%;
+    --input: 217 25% 28%;
+    --ring: 205 85% 62%;
+
+    --success: 151 55% 52%;
+    --success-foreground: 217 45% 10%;
+    --success-soft: 151 40% 18%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 217 45% 10%;
+    --warning-soft: 38 55% 20%;
+    --info: 205 85% 62%;
+    --info-foreground: 217 45% 10%;
+    --info-soft: 210 60% 20%;
+
+    --ben-heading: 205 60% 82%;
+    --ben-subheading: 210 25% 72%;
+    --ben-highlight: 40 92% 60%;
+    --ben-accent: 187 65% 55%;
+    --ben-auxiliary: 262 60% 74%;
+    --ben-text-primary: 210 30% 96%;
+    --ben-text-secondary: 215 20% 72%;
+  }
+
+  /* HIGH CONTRAST — accessibility power mode (AX-4). Pure black/white,
+     max contrast, thicker borders. Applied on top of .dark or light. */
+  .theme-hc {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 48 100% 60%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 82%;
+    --accent: 0 0% 16%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 62%;
+    --destructive-foreground: 0 0% 0%;
+    --border: 0 0% 60%;
+    --input: 0 0% 70%;
+    --ring: 48 100% 60%;
+    --success: 130 100% 60%;
+    --success-foreground: 0 0% 0%;
+    --success-soft: 130 40% 12%;
+    --warning: 40 100% 60%;
+    --warning-foreground: 0 0% 0%;
+    --warning-soft: 40 40% 12%;
+    --info: 200 100% 65%;
+    --info-foreground: 0 0% 0%;
+    --info-soft: 200 40% 12%;
+    --ben-heading: 48 100% 62%;
+    --ben-subheading: 0 0% 88%;
+    --ben-highlight: 48 100% 60%;
+    --ben-accent: 180 100% 60%;
+    --ben-auxiliary: 280 100% 76%;
+    --ben-text-primary: 0 0% 100%;
+    --ben-text-secondary: 0 0% 82%;
+  }
+  .theme-hc * {
+    border-color: hsl(var(--border)) !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Accessibility: always-visible, high-contrast focus ring (AX-4) */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* Skip link (WCAG 2.4.1) */
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed left-4 top-4 z-[100] rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+  }
+}
