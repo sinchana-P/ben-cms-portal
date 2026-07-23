@@ -1,4 +1,5 @@
-import { PAYMENTS, PAYMENT_KIND_LABEL, LOANS } from "@/data/payments";
+import { PAYMENT_KIND_LABEL, LOANS } from "@/data/payments";
+import { useAppData } from "@/context/appData";
 import { operatorById } from "@/data/operators";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -12,6 +13,7 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { ArrowDownLeft, ArrowUpRight, Landmark } from "lucide-react";
 
 export default function Payments() {
+  const { payments: PAYMENTS } = useAppData();
   const inbound = PAYMENTS.filter((p) => p.direction === "inbound");
   const outbound = PAYMENTS.filter((p) => p.direction === "outbound");
   const inTotal = inbound.filter(p => p.status === "completed").reduce((a, p) => a + p.amount, 0);

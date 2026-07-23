@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
-import { casesForOperator } from "@/data/cases";
+import { useAppData } from "@/context/appData";
 import { operatorById } from "@/data/operators";
 import { siteById, SITE_TYPE_LABEL } from "@/data/sites";
-import { paymentsForOperator, LOANS } from "@/data/payments";
+import { LOANS } from "@/data/payments";
 import { equipmentForSites } from "@/data/equipment";
 import { formById } from "@/data/forms";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -17,10 +17,11 @@ import {
 
 export default function OperatorDashboard() {
   const { persona } = useSession();
+  const { cases: allCases, payments: allPayments } = useAppData();
   const op = operatorById(persona.id);
   const siteIds = persona.siteIds ?? [];
-  const cases = casesForOperator(persona.id);
-  const payments = paymentsForOperator(persona.id);
+  const cases = allCases.filter((c) => c.operatorId === persona.id);
+  const payments = allPayments.filter((p) => p.operatorId === persona.id);
   const loan = LOANS.find((l) => l.operatorId === persona.id);
   const equip = equipmentForSites(siteIds);
 

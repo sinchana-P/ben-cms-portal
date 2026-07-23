@@ -1,5 +1,6 @@
 import { useSession } from "@/context/session";
-import { paymentsForOperator, PAYMENT_KIND_LABEL, LOANS } from "@/data/payments";
+import { PAYMENT_KIND_LABEL, LOANS } from "@/data/payments";
+import { useAppData } from "@/context/appData";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { StatCard } from "@/components/shared/StatCard";
@@ -12,7 +13,8 @@ import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 
 export default function MyAccount() {
   const { persona } = useSession();
-  const payments = paymentsForOperator(persona.id);
+  const { payments: all } = useAppData();
+  const payments = all.filter((p) => p.operatorId === persona.id);
   const loan = LOANS.find((l) => l.operatorId === persona.id);
   const paidIn = payments.filter((p) => p.direction === "inbound" && p.status === "completed").reduce((a, p) => a + p.amount, 0);
   const paidOut = payments.filter((p) => p.direction === "outbound" && p.status === "completed").reduce((a, p) => a + p.amount, 0);

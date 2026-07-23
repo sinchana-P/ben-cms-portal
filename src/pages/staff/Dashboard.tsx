@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
+import { useAppData } from "@/context/appData";
 import { PROGRAM_STATS } from "@/data/sites";
-import { CASES } from "@/data/cases";
 import { TICKETS } from "@/data/tickets";
-import { PAYMENTS, PAYMENT_KIND_LABEL } from "@/data/payments";
 import { formById } from "@/data/forms";
 import { operatorById } from "@/data/operators";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -20,8 +19,9 @@ import {
 
 export default function StaffDashboard() {
   const { persona } = useSession();
+  const { cases, payments } = useAppData();
 
-  const myQueue = CASES.filter((c) =>
+  const myQueue = cases.filter((c) =>
     persona.role === "beo"
       ? c.state === "beo_review" && c.assignedBeoId === persona.id
       : persona.role === "chief"
@@ -29,9 +29,9 @@ export default function StaffDashboard() {
       : ["submitted", "beo_review", "chief_review"].includes(c.state)
   );
 
-  const recent = [...CASES].sort((a, b) => b.submittedOn.localeCompare(a.submittedOn)).slice(0, 6);
+  const recent = [...cases].sort((a, b) => b.submittedOn.localeCompare(a.submittedOn)).slice(0, 6);
   const openTickets = TICKETS.filter((t) => t.state !== "resolved").length;
-  const setAsideMTD = PAYMENTS.filter((p) => p.kind === "set_aside" && p.status === "completed").reduce((a, p) => a + p.amount, 0);
+  const setAsideMTD = payments.filter((p) => p.kind === "set_aside" && p.status === "completed").reduce((a, p) => a + p.amount, 0);
 
   return (
     <div>

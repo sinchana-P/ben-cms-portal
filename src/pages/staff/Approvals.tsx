@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
-import { CASES } from "@/data/cases";
+import { useAppData } from "@/context/appData";
 import { formById } from "@/data/forms";
 import { operatorById } from "@/data/operators";
 import { siteById } from "@/data/sites";
@@ -16,8 +16,9 @@ import { CheckSquare, ArrowRight } from "lucide-react";
 
 export default function Approvals() {
   const { persona } = useSession();
+  const { cases } = useAppData();
 
-  const queue = CASES.filter((c) =>
+  const queue = cases.filter((c) =>
     persona.role === "beo"
       ? c.state === "beo_review" && c.assignedBeoId === persona.id
       : persona.role === "chief"

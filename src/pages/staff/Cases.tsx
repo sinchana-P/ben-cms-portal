@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CASES } from "@/data/cases";
+import { useAppData } from "@/context/appData";
 import { BEN_FORMS, formById } from "@/data/forms";
 import { operatorById } from "@/data/operators";
 import { siteById } from "@/data/sites";
@@ -17,8 +17,9 @@ export default function Cases() {
   const [q, setQ] = useState("");
   const [formFilter, setFormFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const { cases } = useAppData();
 
-  const rows = CASES.filter((c) => {
+  const rows = cases.filter((c) => {
     if (formFilter !== "all" && c.formId !== formFilter) return false;
     if (statusFilter !== "all" && c.state !== statusFilter) return false;
     if (q && !`${c.title} ${operatorById(c.operatorId)?.name}`.toLowerCase().includes(q.toLowerCase())) return false;

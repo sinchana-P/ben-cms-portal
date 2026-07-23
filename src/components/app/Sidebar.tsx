@@ -1,13 +1,14 @@
 import { NavLink } from "react-router-dom";
 import { useSession } from "@/context/session";
+import { useAppData } from "@/context/appData";
 import { navFor } from "@/data/nav";
-import { CASES } from "@/data/cases";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { BenMark } from "./BenMark";
 
 function useBadgeCounts() {
   const { persona } = useSession();
+  const { cases: CASES } = useAppData();
   const approvals = CASES.filter((c) =>
     persona.role === "beo"
       ? c.state === "beo_review" && c.assignedBeoId === persona.id

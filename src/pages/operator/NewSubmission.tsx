@@ -75,13 +75,27 @@ export default function NewSubmission() {
     ? { equipment: equipmentForSites(persona.siteIds ?? []).map((e) => `${e.name} (${e.tagId})`) }
     : {};
 
-  const prefill: Record<string, string | number | boolean> =
-    form.id === "pnl" || form.id === "throw-log" ? { period: "August 2026" } : {};
-
   // P&L is per-site — set-aside uses THIS site's configured rate (not a flat program rate)
   const siteScoped = form.id === "pnl" || form.id === "throw-log";
   const activeSite = siteById(siteId);
   const setAsideRate = (activeSite?.setAsidePct ?? 6.5) / 100;
+
+  // Seed the P&L with the site's realistic monthly figures so the calculation
+  // (totals → net profit → set-aside) is visible immediately; operator edits with actuals.
+  const prefill: Record<string, string | number | boolean> = ((): Record<string, string | number | boolean> => {
+    if (form.id === "pnl" && activeSite) {
+      const g = activeSite.monthlyRevenue || 12000;
+      const taxable = Math.round(g * 0.66);
+      const nontax = Math.round(g * 0.22);
+      return {
+        period: "August 2026",
+        rev_taxable: taxable, rev_nontaxable: nontax, rev_vending: g - taxable - nontax,
+        exp_cogs: Math.round(g * 0.4), exp_operating: Math.round(g * 0.17), exp_payroll: Math.round(g * 0.1),
+      };
+    }
+    if (form.id === "throw-log") return { period: "August 2026" };
+    return {};
+  })();
   const multiSite = (persona.siteIds ?? []).length > 1;
 
   return (
@@ -122,7 +136,7 @@ export default function NewSubmission() {
         </Card>
       )}
 
-      <FormRenderer form={form} initial={prefill} optionOverrides={equipOptions} setAsideRate={setAsideRate} />
+      <FormRenderer key={`${form.id}-${siteId}`} form={form} initial={prefill} optionOverrides={equipOptions} setAsideRate={setAsideRate} />
 
       <div className="mt-5 flex justify-end gap-2">
         <Button variant="outline" onClick={() => navigate("/operator/new")}>Save draft</Button>

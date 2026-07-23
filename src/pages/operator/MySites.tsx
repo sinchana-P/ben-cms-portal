@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
+import { useAppData } from "@/context/appData";
 import { siteById, SITE_TYPE_LABEL } from "@/data/sites";
 import { equipmentForSites, EQUIPMENT_STATUS_LABEL } from "@/data/equipment";
-import { casesForOperator } from "@/data/cases";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,8 @@ export default function MySite() {
   const sites = siteIds.map((s) => siteById(s)).filter(Boolean);
   const equip = equipmentForSites(siteIds);
   const inMaintenance = equip.filter((e) => e.status === "maintenance");
-  const toSign = casesForOperator(persona.id).filter((c) => c.state === "awaiting_ack");
+  const { cases } = useAppData();
+  const toSign = cases.filter((c) => c.operatorId === persona.id && c.state === "awaiting_ack");
 
   return (
     <div>

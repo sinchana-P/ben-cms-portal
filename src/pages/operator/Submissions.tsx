@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
-import { casesForOperator } from "@/data/cases";
+import { useAppData } from "@/context/appData";
 import { formById } from "@/data/forms";
 import { siteById } from "@/data/sites";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -13,7 +13,8 @@ import { FilePlus2, PenLine } from "lucide-react";
 
 export default function Submissions() {
   const { persona } = useSession();
-  const cases = casesForOperator(persona.id);
+  const { cases: all } = useAppData();
+  const cases = all.filter((c) => c.operatorId === persona.id);
   const needsSign = cases.filter((c) => c.state === "awaiting_ack");
 
   return (
