@@ -1,23 +1,41 @@
+import { useState } from "react";
+import { useSession } from "@/context/session";
 import { PAYMENT_KIND_LABEL, LOANS } from "@/data/payments";
 import { useAppData } from "@/context/appData";
 import { operatorById } from "@/data/operators";
+import { formById } from "@/data/forms";
+import type { BenCase, Payment } from "@/types";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { StatCard } from "@/components/shared/StatCard";
+import { PaymentGatewayDialog, type PayMethod } from "@/components/shared/PaymentGatewayDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { ArrowDownLeft, ArrowUpRight, Landmark } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Landmark, Banknote, Clock } from "lucide-react";
+
+function outboundKind(c: BenCase): Payment["kind"] {
+  if (c.formId === "loan-application") return "loan_disbursement";
+  if (c.formId === "insurance-reimbursement") return String(c.values.claim_type ?? "").includes("Life") ? "life_reimbursement" : "medical_reimbursement";
+  return "medical_reimbursement";
+}
 
 export default function Payments() {
-  const { payments: PAYMENTS } = useAppData();
+  const { persona } = useSession();
+  const { payments: PAYMENTS, cases, updateCase, addPayment } = useAppData();
   const inbound = PAYMENTS.filter((p) => p.direction === "inbound");
   const outbound = PAYMENTS.filter((p) => p.direction === "outbound");
   const inTotal = inbound.filter(p => p.status === "completed").reduce((a, p) => a + p.amount, 0);
   const outTotal = outbound.filter(p => p.status === "completed").reduce((a, p) => a + p.amount, 0);
+
+  // Approved outbound cases awaiting a disbursement — this is the staff "way to pay"
+  const canIssue = persona.role === "fiscal" || persona.role === "admin";
+  const awaiting = cases.filter((c) => c.state === "approved" && formById(c.formId)?.producesPayment === "outbound");
+  const [payCase, setPayCase] = useState<BenCase | null>(null);
 
   return (
     <div>
@@ -36,6 +54,35 @@ export default function Payments() {
         <StatCard label="Outbound (completed)" value={formatCurrency(outTotal)} sub="reimbursements & disbursements" icon={ArrowUpRight} tone="info" />
         <StatCard label="Active Loans" value={LOANS.filter(l => l.status === "active").length} sub={formatCurrency(LOANS.reduce((a, l) => a + l.balance, 0)) + " outstanding"} icon={Landmark} tone="warning" />
       </div>
+
+      {awaiting.length > 0 && (
+        <Card className="mb-5 border-warning/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base"><Banknote className="h-4 w-4" /> Awaiting disbursement ({awaiting.length})</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {canIssue
+                ? "Chief-approved outbound payments ready to issue to operators (ACH / check). This is where staff pay operators."
+                : "Approved — awaiting Fiscal/Admin to issue the payment."}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {awaiting.map((c) => (
+              <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3">
+                <div>
+                  <div className="text-sm font-medium">{PAYMENT_KIND_LABEL[outboundKind(c)]} — {operatorById(c.operatorId)?.name}</div>
+                  <div className="text-xs text-muted-foreground">{c.id} · {formById(c.formId)?.shortTitle}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold tabular-nums">{formatCurrency(c.amount ?? 0)}</span>
+                  {canIssue
+                    ? <Button size="sm" onClick={() => setPayCase(c)}><Banknote className="h-4 w-4" /> Issue payment</Button>
+                    : <Badge variant="warning"><Clock className="h-3 w-3" /> Awaiting Fiscal</Badge>}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="payments">
         <TabsList>
@@ -110,6 +157,21 @@ export default function Payments() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {payCase && (
+        <PaymentGatewayDialog
+          open={!!payCase}
+          onOpenChange={(v) => { if (!v) setPayCase(null); }}
+          direction="outbound"
+          amount={payCase.amount ?? 0}
+          operatorName={operatorById(payCase.operatorId)?.name ?? ""}
+          kindLabel={PAYMENT_KIND_LABEL[outboundKind(payCase)]}
+          onComplete={(_status, method: PayMethod) => {
+            addPayment({ direction: "outbound", kind: outboundKind(payCase), operatorId: payCase.operatorId, siteId: null, amount: payCase.amount ?? 0, method, status: "processing", reference: `OUT-${payCase.id}` });
+            updateCase(payCase.id, { state: "paid" }, { state: "paid", actor: persona.name, role: persona.role, note: `${PAYMENT_KIND_LABEL[outboundKind(payCase)]} of ${formatCurrency(payCase.amount ?? 0)} issued via ${method.toUpperCase()}` });
+          }}
+        />
+      )}
     </div>
   );
 }
