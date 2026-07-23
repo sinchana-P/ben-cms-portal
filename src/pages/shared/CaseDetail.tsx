@@ -106,7 +106,7 @@ export default function CaseDetail() {
             )}
           </div>
 
-          <FormRenderer form={form} initial={caseItem.values} readOnly />
+          <FormRenderer form={form} initial={caseItem.values} readOnly setAsideRate={site ? site.setAsidePct / 100 : undefined} />
         </div>
 
         <div className="space-y-5">

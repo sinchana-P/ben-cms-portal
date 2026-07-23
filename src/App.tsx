@@ -16,6 +16,7 @@ import Tickets from "@/pages/staff/Tickets";
 import Payments from "@/pages/staff/Payments";
 import Reports from "@/pages/staff/Reports";
 import Announcements from "@/pages/staff/Announcements";
+import Broadcasts from "@/pages/staff/Broadcasts";
 import Branding from "@/pages/staff/Branding";
 import Coverage from "@/pages/staff/Coverage";
 import Security from "@/pages/staff/Security";
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="/staff/payments" element={<Payments />} />
         <Route path="/staff/reports" element={<Reports />} />
         <Route path="/staff/announcements" element={<Announcements />} />
+        <Route path="/staff/broadcasts" element={<Broadcasts />} />
         <Route path="/staff/branding" element={<Branding />} />
         <Route path="/staff/coverage" element={<Coverage />} />
         <Route path="/staff/security" element={<Security />} />

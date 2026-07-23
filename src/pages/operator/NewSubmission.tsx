@@ -3,18 +3,22 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSession } from "@/context/session";
 import { BEN_FORMS, formById } from "@/data/forms";
 import { equipmentForSites } from "@/data/equipment";
+import { siteById, SITE_TYPE_LABEL } from "@/data/sites";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { FormRenderer } from "@/components/shared/FormRenderer";
 import { ApprovalChain } from "@/components/shared/ApprovalTimeline";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Send, CheckCircle2, FileText } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { ArrowLeft, Send, CheckCircle2, FileText, MapPin } from "lucide-react";
 
 export default function NewSubmission() {
   const { formId } = useParams();
   const { persona } = useSession();
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
+  const [siteId, setSiteId] = useState<string>(persona.siteIds?.[0] ?? "");
 
   // Operator-initiated forms only
   const available = BEN_FORMS.filter((f) => f.initiatedBy === "operator");
@@ -74,6 +78,12 @@ export default function NewSubmission() {
   const prefill: Record<string, string | number | boolean> =
     form.id === "pnl" || form.id === "throw-log" ? { period: "August 2026" } : {};
 
+  // P&L is per-site — set-aside uses THIS site's configured rate (not a flat program rate)
+  const siteScoped = form.id === "pnl" || form.id === "throw-log";
+  const activeSite = siteById(siteId);
+  const setAsideRate = (activeSite?.setAsidePct ?? 6.5) / 100;
+  const multiSite = (persona.siteIds ?? []).length > 1;
+
   return (
     <div>
       <Button asChild variant="ghost" size="sm" className="mb-3 -ml-2"><Link to="/operator/new"><ArrowLeft className="h-4 w-4" /> All forms</Link></Button>
@@ -83,7 +93,36 @@ export default function NewSubmission() {
         <ApprovalChain form={form} currentState="draft" />
       </div>
 
-      <FormRenderer form={form} initial={prefill} optionOverrides={equipOptions} />
+      {siteScoped && activeSite && (
+        <Card className="mb-4">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              {multiSite ? (
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="site" className="text-muted-foreground">Site</Label>
+                  <Select value={siteId} onValueChange={setSiteId}>
+                    <SelectTrigger id="site" className="h-8 w-64"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {(persona.siteIds ?? []).map((sid) => {
+                        const s = siteById(sid);
+                        return s ? <SelectItem key={sid} value={sid}>{s.name} ({s.benId})</SelectItem> : null;
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <span><span className="font-medium">{activeSite.name}</span> · {SITE_TYPE_LABEL[activeSite.type]}</span>
+              )}
+            </div>
+            {form.id === "pnl" && (
+              <span className="text-sm text-muted-foreground">Set-aside rate for this site: <span className="font-semibold text-primary">{activeSite.setAsidePct}%</span> of net profit</span>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <FormRenderer form={form} initial={prefill} optionOverrides={equipOptions} setAsideRate={setAsideRate} />
 
       <div className="mt-5 flex justify-end gap-2">
         <Button variant="outline" onClick={() => navigate("/operator/new")}>Save draft</Button>

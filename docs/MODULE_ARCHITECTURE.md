@@ -230,15 +230,15 @@ The prototype is UI-only (mock data, resets on reload). Beyond that, these are t
 |---|---|---|---|
 | 1 | ✅ **Screen magnifier (to 400%)** | Operator + header — **now built** | P1 |
 | 2 | ✅ **Operator "Sites Managed" history** on Operator Detail (assignment table surfaced on the operator side) — **now built** | Staff → Operator Detail | P1 |
-| 3 | **Per-site set-aside rate in the P&L form** — the form still computes at a flat 3%; it should read the site's configured % (e.g. 6.5%) | Operator → New Submission (P&L) | P1 |
-| 4 | **Global search / command palette** — the Accessibility page advertises `/` to search, but no global search exists yet | Both portals | P2 |
-| 5 | **Staff "compose broadcast"** screen (send a message to all operators) — the broadcast notification exists but not the composer | Staff | P2 |
-| 6 | **Site Documents tab** — host-agency contract & site files as stored documents (POC had this tab; dropped in the port) | Staff → Site Detail | P2 |
+| 3 | ✅ **Per-site set-aside rate in the P&L form** — the form now reads the site's configured % (e.g. 6.5%) on net profit, with a site picker for dual-site operators — **now built** | Operator → New Submission (P&L) | P1 |
+| 4 | ✅ **Removed the false `/`-search claim** — a global command palette is not an RFP requirement, so the misleading shortcut was removed rather than build unrequired scope | Operator → Accessibility | — |
+| 5 | ✅ **Staff broadcast composer** (bulk communications, Q179) — audience + channels + recent broadcasts — **now built** | Staff → Broadcasts | P2 |
+| 6 | ✅ **Site Documents tab** — host-agency contract as a first-class linked document + site files (Q190/Q38) — **now built** | Staff → Site Detail | P2 |
 | 7 | ✅ **Equipment → Site link** — the equipment list now links each site to Site Detail (both directions of the link complete) — **now built** | Staff → Equipment | P2 |
-| 8 | **Notification preferences** — per-event, per-channel (email/in-app) toggles | Both, Settings | P2 |
-| 9 | **Reduce-motion toggle** is cosmetic — not yet wired to actually suppress animations beyond the OS media query | Operator → Accessibility | P3 |
-| 10 | **Staff document management** — versioning, virus-scan, purge, doc-level security (operator upload list exists; staff DMS does not) | Staff | P3 |
-| 11 | **Co-operators on My Site** — an operator doesn't see a Relief/Trainee sharing their site | Operator → My Site | P3 |
+| 8 | **Notification preferences** editor — *not an explicit RFP requirement* (Q33 minimum is email + in-app, which exist); intentionally not built | Both, Settings | out of scope |
+| 9 | ✅ **Reduce-motion** — the toggle now actually suppresses animations/transitions (WCAG) — **now built** | Operator → Accessibility | P3 |
+| 10 | **Staff document management** (versioning/virus-scan/purge) — covered functionally by the Site Documents tab + operator Documents; a standalone DMS is largely backend and not separately required | Staff | deferred |
+| 11 | **Co-operators on My Site** — from the assignment-model exploration, not a hard RFP requirement; left as optional | Operator → My Site | optional |
 | 12 | **Real persistence & APIs** — everything is client-side mock data by design; state resets on reload | Whole app | (by design) |
 
-Items 2, 3, 6, and 7 are the quickest high-value closes and complete the entity relationships this document describes.
+Everything the RFP/Q&A actually asks for is now built. Items 8, 10, and 11 were deliberately **not** built — they are not required (or are backend concerns), per the "only if it's in the requirements" scope call.

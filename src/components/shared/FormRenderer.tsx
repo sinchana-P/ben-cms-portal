@@ -16,7 +16,7 @@ function num(v: unknown): number {
   return isNaN(n) ? 0 : n;
 }
 
-export function computeField(field: FormField, values: Values): number {
+export function computeField(field: FormField, values: Values, setAsideRate: number = SET_ASIDE_RATE): number {
   if (field.computeKind === "sum") {
     return (field.computeFrom ?? []).reduce((acc, k) => acc + num(values[k]), 0);
   }
@@ -28,7 +28,7 @@ export function computeField(field: FormField, values: Values): number {
   if (field.computeKind === "setaside") {
     const rev = num(values.rev_taxable) + num(values.rev_nontaxable) + num(values.rev_vending);
     const exp = num(values.exp_cogs) + num(values.exp_operating) + num(values.exp_payroll);
-    return Math.max(0, Math.round((rev - exp) * SET_ASIDE_RATE));
+    return Math.max(0, Math.round((rev - exp) * setAsideRate));
   }
   return 0;
 }
@@ -38,11 +38,14 @@ export function FormRenderer({
   initial = {},
   readOnly = false,
   optionOverrides = {},
+  setAsideRate = SET_ASIDE_RATE,
 }: {
   form: BenForm;
   initial?: Values;
   readOnly?: boolean;
   optionOverrides?: Record<string, string[]>;
+  /** per-site set-aside rate (fraction, e.g. 0.065) — P&L set-aside uses this */
+  setAsideRate?: number;
 }) {
   const [values, setValues] = useState<Values>(initial);
   const set = (k: string, v: string | number | boolean) => setValues((p) => ({ ...p, [k]: v }));
@@ -69,7 +72,7 @@ export function FormRenderer({
               <Field
                 key={field.key}
                 field={field}
-                value={field.type === "computed" ? computeField(field, values) : values[field.key]}
+                value={field.type === "computed" ? computeField(field, values, setAsideRate) : values[field.key]}
                 onChange={(v) => set(field.key, v)}
                 readOnly={readOnly || field.readOnly || field.type === "computed"}
                 options={optionOverrides[field.key] ?? field.options}

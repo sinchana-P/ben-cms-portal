@@ -25,6 +25,10 @@ export default function AccessibilitySettings() {
     return () => { document.documentElement.style.fontSize = ""; };
   }, [size]);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("reduce-motion", reduceMotion);
+  }, [reduceMotion]);
+
   return (
     <div>
       <PageHeader
@@ -96,7 +100,7 @@ export default function AccessibilitySettings() {
                 ["Tab / Shift+Tab", "Move between controls"],
                 ["Enter / Space", "Activate the focused control"],
                 ["Esc", "Close a dialog or menu"],
-                ["/", "Jump to search"],
+                ["Arrow keys", "Move within menus, tabs, and lists"],
               ].map(([k, v]) => (
                 <div key={k} className="flex items-center justify-between">
                   <kbd className="rounded border bg-muted px-2 py-0.5 font-mono text-xs">{k}</kbd>

@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import {
   ArrowLeft, Building2, MapPin, Pencil, AlertTriangle, Check, Clock, Users, Plus,
-  FileText, Package, ArrowRight, Map,
+  FileText, Package, ArrowRight, Map, UploadCloud, Download, FileCheck2,
 } from "lucide-react";
 
 export default function SiteDetail() {
@@ -88,6 +88,7 @@ export default function SiteDetail() {
           <TabsTrigger value="assignments">Assignments</TabsTrigger>
           <TabsTrigger value="reviews">Site Reviews</TabsTrigger>
           <TabsTrigger value="pl">P&amp;L History</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
 
         {/* Overview */}
@@ -266,6 +267,50 @@ export default function SiteDetail() {
             </CardContent>
           </Card>
           <p className="mt-2 text-xs text-muted-foreground">Set-aside is calculated on <strong>net profit</strong>, not gross revenue, at the site's configured rate.</p>
+        </TabsContent>
+
+        {/* Documents — host-agency contract + site files (Q190 / Q38) */}
+        <TabsContent value="documents">
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-base">Site documents</CardTitle>
+              <Button size="sm" variant="outline"><UploadCloud className="h-4 w-4" /> Upload document</Button>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {/* Host-agency contract is a first-class, linked document */}
+              <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/[0.04] p-3">
+                <div className="flex items-center gap-3">
+                  <FileCheck2 className="h-5 w-5 text-primary" />
+                  <div>
+                    <div className="text-sm font-medium">Host-Agency Contract — {site.hostAgency}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {site.contractStart ? `${formatDate(site.contractStart)} — ${formatDate(site.contractEnd!)}` : "Not yet on file"} · linked to this site
+                    </div>
+                  </div>
+                </div>
+                {site.contractOnFile
+                  ? <Button size="sm" variant="ghost"><Download className="h-4 w-4" /> Download</Button>
+                  : <Badge variant="warning">Pending upload</Badge>}
+              </div>
+              {[
+                { name: "Site Layout & Equipment Plan.pdf", type: "Operations", size: "420 KB", date: "2024-02-01" },
+                { name: "Annual Site Review — SFY 2026.pdf", type: "Review", size: "180 KB", date: "2026-06-30" },
+                { name: "Certificate of Insurance.pdf", type: "Compliance", size: "240 KB", date: "2026-01-12" },
+              ].map((d) => (
+                <div key={d.name} className="flex items-center justify-between rounded-lg border p-3">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <div className="text-sm font-medium">{d.name}</div>
+                      <div className="text-xs text-muted-foreground">{d.type} · {d.size} · {formatDate(d.date)}</div>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="ghost"><Download className="h-4 w-4" /> Download</Button>
+                </div>
+              ))}
+              <p className="pt-1 text-xs text-muted-foreground">Documents are virus-scanned, versioned, and access-controlled per role.</p>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

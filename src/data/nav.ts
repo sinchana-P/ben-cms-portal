@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, CheckSquare, FileText, Users, MapPin, Package,
   Wrench, CreditCard, BarChart3, Megaphone, Palette, ClipboardCheck,
-  ShieldCheck, FilePlus2, Receipt, FolderOpen, Accessibility, FileSearch,
+  ShieldCheck, FilePlus2, Receipt, FolderOpen, Accessibility, FileSearch, Send,
 } from "lucide-react";
 import type { Portal, Role } from "@/types";
 
@@ -28,6 +28,7 @@ export const NAV: NavItem[] = [
   { to: "/staff/payments", label: "Payments & Loans", icon: CreditCard, portal: "staff", roles: ["chief", "fiscal", "admin"] },
   { to: "/staff/reports", label: "Reports", icon: BarChart3, portal: "staff", roles: ALL_STAFF },
   { to: "/staff/announcements", label: "Site Announcements", icon: Megaphone, portal: "staff", roles: ["chief", "beo", "admin"] },
+  { to: "/staff/broadcasts", label: "Broadcasts", icon: Send, portal: "staff", roles: ["chief", "beo", "admin"] },
   { to: "/staff/branding", label: "Branding & Theme", icon: Palette, portal: "staff", roles: ["chief", "admin"] },
   { to: "/staff/coverage", label: "RFP Coverage", icon: ClipboardCheck, portal: "staff", roles: ALL_STAFF },
   { to: "/staff/security", label: "Security & Audit", icon: ShieldCheck, portal: "staff", roles: ["chief", "admin"] },
