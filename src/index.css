@@ -52,6 +52,7 @@
     --ben-text-primary: 217 33% 17%;
     --ben-text-secondary: 215 16% 42%;
 
+    --shadow-color: 214 32% 30%;
     --radius: 0.6rem;
   }
 
@@ -96,6 +97,8 @@
     --ben-auxiliary: 262 60% 74%;
     --ben-text-primary: 210 30% 96%;
     --ben-text-secondary: 215 20% 72%;
+
+    --shadow-color: 222 60% 2%;
   }
 
   /* HIGH CONTRAST — accessibility power mode (AX-4). Pure black/white,
@@ -136,6 +139,7 @@
     --ben-auxiliary: 280 100% 76%;
     --ben-text-primary: 0 0% 100%;
     --ben-text-secondary: 0 0% 82%;
+    --shadow-color: 0 0% 0%;
   }
   .theme-hc * {
     border-color: hsl(var(--border)) !important;
@@ -147,10 +151,19 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "cv11", "ss01";
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv11", "ss01", "cv05";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    letter-spacing: -0.006em;
+  }
+  h1, h2, h3 { letter-spacing: -0.015em; }
+
+  /* Subtle depth on the app background (kept AA-safe) */
+  .app-canvas {
+    background-image:
+      radial-gradient(60rem 60rem at 110% -10%, hsl(var(--primary) / 0.05), transparent 60%),
+      radial-gradient(50rem 50rem at -10% 0%, hsl(var(--ben-highlight) / 0.04), transparent 55%);
   }
 
   /* Accessibility: always-visible, high-contrast focus ring (AX-4) */

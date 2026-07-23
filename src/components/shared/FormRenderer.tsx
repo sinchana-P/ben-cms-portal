@@ -113,14 +113,19 @@ function Field({
       {isComputed ? (
         <div
           className={cn(
-            "flex h-9 items-center rounded-md border px-3 text-sm font-semibold tabular-nums",
+            "flex h-12 items-center rounded-lg border px-4 tabular-nums",
             field.computeKind === "setaside"
-              ? "border-primary/40 bg-primary/5 text-primary"
-              : "bg-muted/60"
+              ? "border-primary/40 bg-gradient-to-r from-primary/10 to-[hsl(var(--ben-highlight)/0.12)]"
+              : "border-transparent bg-muted/60"
           )}
           aria-live="polite"
         >
-          {formatCurrency(num(value))}
+          <span className={cn(
+            "font-bold",
+            field.computeKind === "setaside" ? "text-xl text-primary" : "text-lg text-foreground"
+          )}>
+            {formatCurrency(num(value))}
+          </span>
         </div>
       ) : field.type === "textarea" ? (
         <Textarea id={field.key} value={String(value ?? "")} placeholder={field.placeholder} onChange={(e) => onChange(e.target.value)} disabled={readOnly} rows={3} />

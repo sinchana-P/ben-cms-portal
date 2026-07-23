@@ -11,7 +11,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { ArrowLeft, Send, CheckCircle2, FileText, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  ArrowLeft, Send, CheckCircle2, FileText, MapPin, ArrowRight,
+  DollarSign, ClipboardList, Package, HeartPulse, ClipboardCheck,
+} from "lucide-react";
+
+const CATEGORY_STYLE: Record<string, { icon: any; chip: string }> = {
+  financial: { icon: DollarSign, chip: "text-success bg-success-soft" },
+  operational: { icon: ClipboardList, chip: "text-info bg-info-soft" },
+  equipment: { icon: Package, chip: "text-warning bg-warning-soft" },
+  insurance: { icon: HeartPulse, chip: "text-[hsl(var(--ben-auxiliary))] bg-[hsl(var(--ben-auxiliary)/0.12)]" },
+  review: { icon: ClipboardCheck, chip: "text-primary bg-primary/10" },
+};
 
 export default function NewSubmission() {
   const { formId } = useParams();
@@ -29,18 +41,23 @@ export default function NewSubmission() {
       <div>
         <PageHeader eyebrow="Operator Portal" title="New submission" description="Choose a BEN form to complete. All forms are guided, validated, and screen-reader accessible." />
         <div className="grid gap-3 sm:grid-cols-2">
-          {available.map((f) => (
-            <Link key={f.id} to={`/operator/new/${f.id}`} className="group rounded-lg border p-4 transition-colors hover:border-primary hover:bg-primary/[0.03]">
-              <div className="flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary"><FileText className="h-4 w-4" /></span>
-                <div>
-                  <div className="text-sm font-semibold group-hover:text-primary">{f.title}</div>
-                  <div className="text-xs text-muted-foreground">{f.code} · {f.frequency}</div>
+          {available.map((f) => {
+            const cs = CATEGORY_STYLE[f.category] ?? CATEGORY_STYLE.review;
+            const Icon = cs.icon;
+            return (
+              <Link key={f.id} to={`/operator/new/${f.id}`} className="group flex flex-col rounded-xl border bg-card p-5 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-card-hover">
+                <div className="flex items-start gap-3">
+                  <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", cs.chip)}><Icon className="h-5 w-5" /></span>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold group-hover:text-primary">{f.title}</div>
+                    <div className="text-xs text-muted-foreground">{f.code} · {f.frequency}</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
                 </div>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">{f.description}</p>
-            </Link>
-          ))}
+                <p className="mt-3 text-sm text-muted-foreground">{f.description}</p>
+              </Link>
+            );
+          })}
         </div>
       </div>
     );

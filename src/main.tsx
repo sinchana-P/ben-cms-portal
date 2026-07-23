@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { SessionProvider } from "@/context/session";
 import { AppDataProvider } from "@/context/appData";
 import App from "./App";
+import "@fontsource-variable/inter";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

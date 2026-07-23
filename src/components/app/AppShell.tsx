@@ -6,7 +6,7 @@ import { useSession } from "@/context/session";
 export function AppShell() {
   const { magnify } = useSession();
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="app-canvas flex min-h-screen bg-background">
       <a href="#main" className="skip-link">Skip to main content</a>
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
