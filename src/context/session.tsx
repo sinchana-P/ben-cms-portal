@@ -34,7 +34,7 @@ function readPersisted(): { personaId?: string; highContrast?: boolean; magnify?
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const persisted = readPersisted();
-  const [personaId, setPersonaId] = useState<string>(persisted.personaId ?? "chief-1");
+  const [personaId, setPersonaId] = useState<string>(persisted.personaId ?? "admin-1");
   const [themeMode, setThemeMode] = useState<ThemeMode>("light");
   const [highContrast, setHighContrast] = useState(persisted.highContrast ?? false);
   const [magnify, setMagnify] = useState(persisted.magnify ?? 1);

@@ -12,7 +12,7 @@ export function PortalSwitcher() {
 
   const go = (p: "staff" | "operator") => {
     if (p === portal) return;
-    setPersonaId(p === "staff" ? "chief-1" : "op-maria");
+    setPersonaId(p === "staff" ? "admin-1" : "op-maria");
     navigate(p === "staff" ? "/staff" : "/operator");
   };
 
