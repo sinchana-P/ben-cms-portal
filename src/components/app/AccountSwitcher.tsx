@@ -7,7 +7,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ROLE_LABEL } from "@/data/personas";
 import { initials } from "@/lib/utils";
-import { ChevronsUpDown, Check, ShieldCheck, KeyRound } from "lucide-react";
+import { ChevronsUpDown, Check, ShieldCheck, KeyRound, LogOut } from "lucide-react";
 
 /** The demo centerpiece: switch the acting user. Changing account changes
  *  role → nav + permissions, and portal + data scope (operators see only
@@ -70,6 +70,10 @@ export function AccountSwitcher() {
             {persona.id === p.id && <Check className="h-4 w-4 text-primary" />}
           </DropdownMenuItem>
         ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate("/")}>
+          <LogOut className="h-4 w-4" /> <span>View public landing / sign out</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

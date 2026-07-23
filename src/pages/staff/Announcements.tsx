@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ANNOUNCEMENTS } from "@/data/announcements";
 import { SITE_TYPE_LABEL } from "@/data/sites";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -40,8 +41,10 @@ export default function Announcements() {
                 <span className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4" /> {a.applicants} applicants</span>
                 <span className="text-xs text-muted-foreground">Posted {formatDate(a.postedOn)} · closes {formatDate(a.closesOn)}</span>
               </div>
-              {a.status === "open" && a.applicants > 0 && (
-                <Button variant="outline" size="sm" className="w-full"><FileCheck2 className="h-4 w-4" /> Review {a.applicants} applications</Button>
+              {a.applicants > 0 && (
+                <Button asChild variant="outline" size="sm" className="w-full">
+                  <Link to={`/staff/announcements/${a.id}`}><FileCheck2 className="h-4 w-4" /> Review {a.applicants} application{a.applicants !== 1 ? "s" : ""}</Link>
+                </Button>
               )}
             </CardContent>
           </Card>

@@ -1,5 +1,7 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { AppShell } from "@/components/app/AppShell";
+import Landing from "@/pages/public/Landing";
+import AnnouncementPublic from "@/pages/public/AnnouncementPublic";
 
 // Staff pages
 import StaffDashboard from "@/pages/staff/Dashboard";
@@ -16,6 +18,7 @@ import Tickets from "@/pages/staff/Tickets";
 import Payments from "@/pages/staff/Payments";
 import Reports from "@/pages/staff/Reports";
 import Announcements from "@/pages/staff/Announcements";
+import ApplicationReview from "@/pages/staff/ApplicationReview";
 import Broadcasts from "@/pages/staff/Broadcasts";
 import Branding from "@/pages/staff/Branding";
 import Coverage from "@/pages/staff/Coverage";
@@ -41,8 +44,11 @@ import CaseDetail from "@/pages/shared/CaseDetail";
 export default function App() {
   return (
     <Routes>
+      {/* Public surfaces — no auth, no app shell (RFP 2.6.1 landing) */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/opportunities/:id" element={<AnnouncementPublic />} />
+
       <Route element={<AppShell />}>
-        <Route path="/" element={<Navigate to="/staff" replace />} />
 
         {/* Staff */}
         <Route path="/staff" element={<StaffDashboard />} />
@@ -60,6 +66,7 @@ export default function App() {
         <Route path="/staff/payments" element={<Payments />} />
         <Route path="/staff/reports" element={<Reports />} />
         <Route path="/staff/announcements" element={<Announcements />} />
+        <Route path="/staff/announcements/:id" element={<ApplicationReview />} />
         <Route path="/staff/broadcasts" element={<Broadcasts />} />
         <Route path="/staff/branding" element={<Branding />} />
         <Route path="/staff/coverage" element={<Coverage />} />

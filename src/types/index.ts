@@ -96,9 +96,15 @@ export type SiteApplication = {
   announcementId: string;
   siteName: string;
   operatorId: string;
+  /** applicant name captured at submit (may be an operator or a new applicant) */
+  applicantName?: string;
   submittedOn: string;
   stage: ApplicationStage;
   outcome: "in_progress" | "awarded" | "declined";
+  narrative?: string;
+  docs?: { businessPlan: boolean; resume: boolean; letters: number };
+  scoringSheet?: boolean; // staff-uploaded
+  awardLetter?: boolean; // staff-uploaded
 };
 
 export type OperatorStatus =
@@ -302,10 +308,12 @@ export type Announcement = {
   siteName: string;
   siteType: SiteType;
   hostAgency: string;
+  county?: string;
   postedOn: string;
   closesOn: string;
   status: "open" | "under_review" | "awarded" | "closed";
   applicants: number;
+  estimatedAnnual?: number;
   body: string;
 };
 

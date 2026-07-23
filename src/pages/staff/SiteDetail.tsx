@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { siteById, SITE_TYPE_LABEL, plHistoryForSite } from "@/data/sites";
 import { assignmentsForSite } from "@/data/assignments";
-import { operatorById } from "@/data/operators";
+import { operatorById, OPERATORS } from "@/data/operators";
 import { equipmentForSites, EQUIPMENT_STATUS_LABEL } from "@/data/equipment";
 import { reviewsForSite, REVIEW_FLOW_LABEL, REVIEW_FLOW_ORDER } from "@/data/siteReviews";
+import type { SiteAssignment, AssignmentRole } from "@/types";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,19 +14,23 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import {
   ArrowLeft, Building2, MapPin, Pencil, AlertTriangle, Check, Clock, Users, Plus,
-  FileText, Package, ArrowRight, Map, UploadCloud, Download, FileCheck2,
+  FileText, Package, ArrowRight, Map, UploadCloud, Download, FileCheck2, UserPlus,
 } from "lucide-react";
 
 export default function SiteDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const site = siteById(id ?? "");
+  const [assignments, setAssignments] = useState<SiteAssignment[]>(() => assignmentsForSite(id ?? ""));
   if (!site) return <p className="text-muted-foreground">Site not found.</p>;
 
-  const assignments = assignmentsForSite(site.id);
   const current = assignments.filter((a) => !a.endDate);
   const primary = current.find((a) => a.role === "Primary");
   const primaryOp = operatorById(primary?.operatorId ?? null);
@@ -167,7 +173,21 @@ export default function SiteDetail() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4" /> Operator assignments</CardTitle>
-                <Button size="sm" variant="outline"><Plus className="h-4 w-4" /> Reassign / add operator</Button>
+                <ReassignDialog
+                  siteId={site.id}
+                  onReassign={(operatorId, role, notes) => {
+                    const now = new Date().toISOString().slice(0, 10);
+                    setAssignments((prev) => {
+                      let next = role === "Primary" ? prev.map((a) => (a.role === "Primary" && !a.endDate ? { ...a, endDate: now } : a)) : [...prev];
+                      const op = operatorById(operatorId);
+                      next = [{
+                        id: `A-${Date.now()}`, siteId: site.id, operatorId, role, startDate: now, endDate: null,
+                        assignedBy: "You (staff)", operatorStatusAtSite: op?.status === "interim" ? "Interim" : "Licensed", notes,
+                      }, ...next];
+                      return next;
+                    });
+                  }}
+                />
               </div>
               <p className="text-sm text-muted-foreground">A site can hold several concurrent roles; only the Primary owns P&L and set-aside. Reassigning closes the current row and opens a new one — history is preserved.</p>
             </CardHeader>
@@ -332,5 +352,59 @@ function Field({ label, value, note }: { label: string; value: string; note?: st
       <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="mt-0.5">{value} {note && <span className="text-xs text-warning">({note})</span>}</div>
     </div>
+  );
+}
+
+function ReassignDialog({ siteId, onReassign }: { siteId: string; onReassign: (operatorId: string, role: AssignmentRole, notes: string) => void }) {
+  const [operatorId, setOperatorId] = useState("");
+  const [role, setRole] = useState<AssignmentRole>("Primary");
+  const [notes, setNotes] = useState("");
+  const candidates = OPERATORS.filter((o) => o.status !== "archived");
+  const chosen = OPERATORS.find((o) => o.id === operatorId);
+  const atMax = role === "Primary" && chosen && chosen.siteIds.length >= 2 && !chosen.siteIds.includes(siteId);
+  const canSave = !!operatorId && !atMax;
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild><Button size="sm" variant="outline"><UserPlus className="h-4 w-4" /> Reassign / add operator</Button></DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign an operator to this site</DialogTitle>
+          <DialogDescription>Assigning a new Primary closes the current Primary's assignment (end-dated) and opens a new one. History is preserved and audited.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label>Operator</Label>
+            <Select value={operatorId} onValueChange={setOperatorId}>
+              <SelectTrigger><SelectValue placeholder="Select operator…" /></SelectTrigger>
+              <SelectContent>
+                {candidates.map((o) => <SelectItem key={o.id} value={o.id}>{o.name} — {o.siteIds.length}/2 sites</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Role</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as AssignmentRole)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Primary">Primary — owns P&amp;L &amp; set-aside</SelectItem>
+                <SelectItem value="Relief">Relief — temporary cover</SelectItem>
+                <SelectItem value="Trainee">Trainee — under supervision</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5"><Label>Reason / note</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Transferred from Henderson site" /></div>
+          {atMax && (
+            <p className="flex items-start gap-1.5 rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-xs text-warning">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> This operator already holds 2 sites (program maximum). Choose Relief/Trainee, a different operator, or reassign one of their sites first.
+            </p>
+          )}
+        </div>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild><Button disabled={!canSave} onClick={() => canSave && onReassign(operatorId, role, notes)}><Check className="h-4 w-4" /> Assign</Button></DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
