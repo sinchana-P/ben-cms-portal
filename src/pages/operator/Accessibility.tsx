@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSession } from "@/context/session";
+import { useSession, MAGNIFY_LEVELS } from "@/context/session";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
-  Sun, Moon, Contrast, Type, Keyboard, Volume2, Eye, CheckCircle2,
+  Sun, Moon, Contrast, Type, Keyboard, Volume2, Eye, CheckCircle2, ZoomIn,
 } from "lucide-react";
 
 const SIZES = [
@@ -15,7 +15,7 @@ const SIZES = [
 ];
 
 export default function AccessibilitySettings() {
-  const { themeMode, setThemeMode, highContrast, setHighContrast } = useSession();
+  const { themeMode, setThemeMode, highContrast, setHighContrast, magnify, setMagnify } = useSession();
   const [size, setSize] = useState("M");
   const [reduceMotion, setReduceMotion] = useState(false);
 
@@ -55,6 +55,17 @@ export default function AccessibilitySettings() {
                   <Button key={s.key} variant={size === s.key ? "default" : "outline"} onClick={() => setSize(s.key)}>{s.key}</Button>
                 ))}
               </div>
+            </div>
+            <div>
+              <Label className="mb-2 flex items-center gap-2"><ZoomIn className="h-4 w-4" /> Screen magnifier <span className="ml-auto tabular-nums text-xs text-muted-foreground">{Math.round(magnify * 100)}%</span></Label>
+              <div className="grid grid-cols-6 gap-2">
+                {MAGNIFY_LEVELS.map((lvl) => (
+                  <Button key={lvl} size="sm" variant={magnify === lvl ? "default" : "outline"} onClick={() => setMagnify(lvl)} className="tabular-nums">
+                    {Math.round(lvl * 100)}
+                  </Button>
+                ))}
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">Magnifies the page up to 400% without breaking layout — also available from the magnifier button in the top bar.</p>
             </div>
             <div className="flex items-center justify-between">
               <div><Label htmlFor="rm">Reduce motion</Label><p className="mt-0.5 text-xs text-muted-foreground">Minimize animations</p></div>

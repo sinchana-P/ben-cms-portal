@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { EQUIPMENT, EQUIPMENT_STATUS_LABEL } from "@/data/equipment";
 import { siteById } from "@/data/sites";
 import { operatorById } from "@/data/operators";
@@ -67,7 +68,10 @@ export default function Equipment() {
                     <div className="text-xs text-muted-foreground">{e.tagId} · {e.manufacturer} {e.model}</div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{e.category}</TableCell>
-                  <TableCell className="text-sm">{siteById(e.siteId)?.name}<div className="text-xs text-muted-foreground">{operatorById(e.operatorId)?.name}</div></TableCell>
+                  <TableCell className="text-sm">
+                    <Link to={`/staff/sites/${e.siteId}`} className="font-medium hover:text-primary" onClick={(ev) => ev.stopPropagation()}>{siteById(e.siteId)?.name}</Link>
+                    <div className="text-xs text-muted-foreground">{operatorById(e.operatorId)?.name}</div>
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatDate(e.warrantyUntil)}</TableCell>
                   <TableCell><StatusBadge state={e.status} label={EQUIPMENT_STATUS_LABEL[e.status]} /></TableCell>
                   <TableCell className="text-right tabular-nums">{formatCurrency(e.price)}</TableCell>

@@ -1,6 +1,7 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { operatorById, OPERATOR_LIFECYCLE, OPERATOR_STATUS_LABEL } from "@/data/operators";
 import { siteById, SITE_TYPE_LABEL } from "@/data/sites";
+import { assignmentsForOperator } from "@/data/assignments";
 import { casesForOperator } from "@/data/cases";
 import { paymentsForOperator } from "@/data/payments";
 import { LOANS } from "@/data/payments";
@@ -90,6 +91,32 @@ export default function OperatorDetail() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mt-5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Sites managed</CardTitle>
+          <p className="text-sm text-muted-foreground">Current and historical assignments from the assignment table — preserved across every reassignment.</p>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {assignmentsForOperator(o.id).map((a) => {
+            const s = siteById(a.siteId);
+            const active = !a.endDate;
+            return (
+              <Link key={a.id} to={`/staff/sites/${a.siteId}`} className={cn("flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 hover:bg-accent", !active && "opacity-70")}>
+                <div className="flex items-center gap-3">
+                  <StatusBadge state={active ? "active" : "closed"} label={a.role} />
+                  <div>
+                    <div className="text-sm font-medium">{s?.name}</div>
+                    <div className="text-xs text-muted-foreground">{formatDate(a.startDate)} → {a.endDate ? formatDate(a.endDate) : "present"} · by {a.assignedBy}{a.notes ? ` · ${a.notes}` : ""}</div>
+                  </div>
+                </div>
+                <span className="text-xs font-medium">{active ? "Active" : "Ended"}</span>
+              </Link>
+            );
+          })}
+          {assignmentsForOperator(o.id).length === 0 && <p className="text-sm text-muted-foreground">No site assignments on record.</p>}
+        </CardContent>
+      </Card>
 
       <Card className="mt-5">
         <CardHeader className="pb-2"><CardTitle className="text-base">Submissions</CardTitle></CardHeader>

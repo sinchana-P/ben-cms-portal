@@ -13,9 +13,14 @@ type SessionState = {
   setThemeMode: (m: ThemeMode) => void;
   highContrast: boolean;
   setHighContrast: (v: boolean) => void;
+  /** screen magnification 1.0–4.0 (AX-4 / 400% zoom, ZoomText-class) */
+  magnify: number;
+  setMagnify: (n: number) => void;
   /** operator scope helper */
   scopedSiteIds: string[] | null; // null = all (staff)
 };
+
+export const MAGNIFY_LEVELS = [1, 1.25, 1.5, 2, 3, 4];
 
 const SessionContext = createContext<SessionState | null>(null);
 
@@ -23,6 +28,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [personaId, setPersonaId] = useState<string>("chief-1");
   const [themeMode, setThemeMode] = useState<ThemeMode>("light");
   const [highContrast, setHighContrast] = useState(false);
+  const [magnify, setMagnify] = useState(1);
 
   const persona = personaById(personaId) ?? PERSONAS[0];
 
@@ -48,9 +54,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       setThemeMode,
       highContrast,
       setHighContrast,
+      magnify,
+      setMagnify,
       scopedSiteIds: persona.role === "operator" ? persona.siteIds ?? [] : null,
     }),
-    [persona, themeMode, highContrast]
+    [persona, themeMode, highContrast, magnify]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

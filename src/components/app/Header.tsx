@@ -3,6 +3,7 @@ import { useSession } from "@/context/session";
 import { PortalSwitcher } from "./PortalSwitcher";
 import { AccountSwitcher } from "./AccountSwitcher";
 import { ThemeControls } from "./ThemeControls";
+import { MagnifierControl } from "./MagnifierControl";
 import { NotificationsButton } from "./NotificationsButton";
 import { NavList } from "./Sidebar";
 import { BenMark } from "./BenMark";
@@ -44,6 +45,7 @@ export function Header() {
           {persona.authMethod.includes("SSO") ? "AD SSO" : "MFA + OTP"}
         </Badge>
         <div className="lg:hidden"><PortalSwitcher /></div>
+        <MagnifierControl />
         <ThemeControls />
         <NotificationsButton />
         <AccountSwitcher />
