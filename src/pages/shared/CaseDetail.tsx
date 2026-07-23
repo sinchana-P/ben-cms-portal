@@ -69,7 +69,10 @@ export default function CaseDetail() {
   const isBeo = persona.role === "beo";
   const isChief = persona.role === "chief";
   const isOperatorOwner = persona.role === "operator" && persona.id === caseItem.operatorId;
-  const isFiscalOrAdmin = persona.role === "fiscal" || persona.role === "admin";
+  // Outbound disbursements are executed via the State Treasurer's Office; the
+  // in-app trigger is reserved to the Admin Assistant (limited write). Fiscal
+  // is strictly view-only per RFP §5.1.2.
+  const isAdmin = persona.role === "admin";
   const chainHasChief = form.approvalChain.includes("chief");
 
   return (
@@ -151,17 +154,17 @@ export default function CaseDetail() {
                   <CreditCard className="h-4 w-4" /> Pay set-aside {formatCurrency(setAside)}
                 </Button>
               )}
-              {/* Outbound: Fiscal/Admin issues the disbursement to the operator */}
-              {isFiscalOrAdmin && caseItem.state === "approved" && form.producesPayment === "outbound" && (
+              {/* Outbound: Admin records the disbursement (executed via STO) */}
+              {isAdmin && caseItem.state === "approved" && form.producesPayment === "outbound" && (
                 <Button className="w-full" onClick={() => setGateway("outbound")}>
                   <Banknote className="h-4 w-4" /> Issue payment {formatCurrency(outboundAmount)}
                 </Button>
               )}
-              {isChief && caseItem.state === "approved" && form.producesPayment === "outbound" && (
-                <p className="text-sm text-muted-foreground">Approved. Awaiting Fiscal/Admin to issue the payment.</p>
+              {(isChief || persona.role === "fiscal") && caseItem.state === "approved" && form.producesPayment === "outbound" && (
+                <p className="text-sm text-muted-foreground">Approved — disbursement pending. Issued by the Admin Assistant and executed via the State Treasurer's Office.</p>
               )}
               {["paid", "rejected", "acknowledged", "reviewed", "closed"].includes(caseItem.state) &&
-                !(isFiscalOrAdmin && caseItem.state === "approved") && (
+                !(isAdmin && caseItem.state === "approved") && (
                   <p className="text-sm text-muted-foreground">No action required in your role at this stage.</p>
                 )}
               {caseItem.state === "approved" && form.producesPayment == null && !isOperatorOwner && (

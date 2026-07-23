@@ -153,6 +153,8 @@ payments ── may reference ── a site and/or a case
 
 **Key rules.** Card/Debit + ACH via the State Treasurer gateway (CyberSource or equivalent). Payment notifications on success / failure / due reminder. Refunds/reversals are rare but supported.
 
+**Who does what (grounded vs. assumed).** *Grounded in the RFP/Q&A:* operators **submit/pay inbound** (RFP §5.1.4 "Submit payments"); the **Chief/Program Administrator approves**; **Fiscal is strictly view-only** (RFP §5.1.2 — review + reports, no approval/execution). *Design decision (not specified by the RFP — a Phase-1 discovery item):* outbound disbursements are **executed by the State Treasurer's Office**, with the in-app "record/issue" trigger reserved to the **Admin Assistant** (limited write). The RFP does **not** name who executes outbound payments, so this is deliberately modeled to keep Fiscal view-only rather than assumed from the requirements.
+
 ---
 
 ## 7. Report — the three fiscal calendars

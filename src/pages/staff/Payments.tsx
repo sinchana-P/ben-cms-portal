@@ -32,8 +32,9 @@ export default function Payments() {
   const inTotal = inbound.filter(p => p.status === "completed").reduce((a, p) => a + p.amount, 0);
   const outTotal = outbound.filter(p => p.status === "completed").reduce((a, p) => a + p.amount, 0);
 
-  // Approved outbound cases awaiting a disbursement — this is the staff "way to pay"
-  const canIssue = persona.role === "fiscal" || persona.role === "admin";
+  // Approved outbound cases awaiting a disbursement. Executed via the State
+  // Treasurer's Office; the in-app trigger is Admin-only. Fiscal is view-only.
+  const canIssue = persona.role === "admin";
   const awaiting = cases.filter((c) => c.state === "approved" && formById(c.formId)?.producesPayment === "outbound");
   const [payCase, setPayCase] = useState<BenCase | null>(null);
 
@@ -46,7 +47,7 @@ export default function Payments() {
 
       <div className="mb-4 flex items-start gap-2 rounded-lg border border-info/30 bg-info-soft/60 px-4 py-2.5 text-sm text-info">
         <Landmark className="mt-0.5 h-4 w-4 shrink-0" />
-        <span>Money moves through the State Treasurer-approved gateway (CyberSource): operators pay <strong>inbound</strong> by Card/ACH; Fiscal/Admin issue <strong>outbound</strong> disbursements by ACH/check. The system records status only — the gateway tokenizes payment details (PCI SAQ-A). Orchestrated by Koodisi.</span>
+        <span>Money moves through the State Treasurer-approved gateway (CyberSource): <strong>operators pay inbound</strong> by Card/ACH; <strong>outbound disbursements are executed via the State Treasurer's Office</strong> (recorded in-app by the Admin Assistant). <strong>Fiscal is view-only</strong> (RFP §5.1.2). The system records status only — the gateway tokenizes payment details (PCI SAQ-A). Orchestrated by Koodisi.</span>
       </div>
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
@@ -61,8 +62,8 @@ export default function Payments() {
             <CardTitle className="flex items-center gap-2 text-base"><Banknote className="h-4 w-4" /> Awaiting disbursement ({awaiting.length})</CardTitle>
             <p className="text-sm text-muted-foreground">
               {canIssue
-                ? "Chief-approved outbound payments ready to issue to operators (ACH / check). This is where staff pay operators."
-                : "Approved — awaiting Fiscal/Admin to issue the payment."}
+                ? "Chief-approved disbursements ready to record/issue (ACH / check). Execution runs through the State Treasurer's Office."
+                : "Chief-approved disbursements — view only. Recorded by the Admin Assistant and executed via the State Treasurer's Office."}
             </p>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -76,7 +77,7 @@ export default function Payments() {
                   <span className="font-semibold tabular-nums">{formatCurrency(c.amount ?? 0)}</span>
                   {canIssue
                     ? <Button size="sm" onClick={() => setPayCase(c)}><Banknote className="h-4 w-4" /> Issue payment</Button>
-                    : <Badge variant="warning"><Clock className="h-3 w-3" /> Awaiting Fiscal</Badge>}
+                    : <Badge variant="warning"><Clock className="h-3 w-3" /> Disbursement pending</Badge>}
                 </div>
               </div>
             ))}
