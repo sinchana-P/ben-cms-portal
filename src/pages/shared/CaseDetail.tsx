@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { FormRenderer } from "@/components/shared/FormRenderer";
 import { ApprovalChain, CaseTimeline } from "@/components/shared/ApprovalTimeline";
+import { PaymentGatewayDialog, type PayMethod } from "@/components/shared/PaymentGatewayDialog";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +32,7 @@ export default function CaseDetail() {
   const { cases, updateCase, addPayment } = useAppData();
   const caseItem = cases.find((c) => c.id === id);
   const [flash, setFlash] = useState<string | null>(null);
+  const [gateway, setGateway] = useState<null | "inbound" | "outbound">(null);
 
   const form = useMemo(() => (caseItem ? formById(caseItem.formId) : undefined), [caseItem]);
 
@@ -143,21 +145,15 @@ export default function CaseDetail() {
                   <PenLine className="h-4 w-4" /> Review & sign
                 </Button>
               )}
-              {/* Inbound: operator pays set-aside → posts to ledger + their statement */}
+              {/* Inbound: operator pays set-aside via the gateway → posts to ledger + statement */}
               {isOperatorOwner && caseItem.state === "approved" && form.producesPayment === "inbound" && (
-                <Button variant="success" className="w-full" onClick={() => {
-                  addPayment({ direction: "inbound", kind: "set_aside", operatorId: caseItem.operatorId, siteId: caseItem.siteId, amount: setAside, method: "ach", status: "completed", reference: `SA-${caseItem.id}` });
-                  advance("paid", { state: "paid", actor: persona.name, role: "operator", note: `Set-aside ${formatCurrency(setAside)} paid via ACH` }, `Payment of ${formatCurrency(setAside)} received — recorded to your account. Loop complete.`);
-                }}>
+                <Button variant="success" className="w-full" onClick={() => setGateway("inbound")}>
                   <CreditCard className="h-4 w-4" /> Pay set-aside {formatCurrency(setAside)}
                 </Button>
               )}
-              {/* Outbound: Fiscal/Admin issues the payment to the operator */}
+              {/* Outbound: Fiscal/Admin issues the disbursement to the operator */}
               {isFiscalOrAdmin && caseItem.state === "approved" && form.producesPayment === "outbound" && (
-                <Button className="w-full" onClick={() => {
-                  addPayment({ direction: "outbound", kind: outboundKind(), operatorId: caseItem.operatorId, siteId: null, amount: outboundAmount, method: "check", status: "processing", reference: `OUT-${caseItem.id}` });
-                  advance("paid", { state: "paid", actor: persona.name, role: persona.role, note: `${PAYMENT_KIND_LABEL[outboundKind()]} of ${formatCurrency(outboundAmount)} issued to operator` }, `Payment of ${formatCurrency(outboundAmount)} issued to ${operator?.name} — posted to their account statement.`);
-                }}>
+                <Button className="w-full" onClick={() => setGateway("outbound")}>
                   <Banknote className="h-4 w-4" /> Issue payment {formatCurrency(outboundAmount)}
                 </Button>
               )}
@@ -180,6 +176,27 @@ export default function CaseDetail() {
           </Card>
         </div>
       </div>
+
+      <PaymentGatewayDialog
+        open={gateway !== null}
+        onOpenChange={(v) => { if (!v) setGateway(null); }}
+        direction={gateway ?? "inbound"}
+        amount={gateway === "outbound" ? outboundAmount : setAside}
+        operatorName={operator?.name ?? ""}
+        kindLabel={gateway === "outbound" ? PAYMENT_KIND_LABEL[outboundKind()] : "Set-aside due"}
+        onComplete={(status: "completed" | "processing" | "failed", method: PayMethod) => {
+          if (gateway === "inbound") {
+            addPayment({ direction: "inbound", kind: "set_aside", operatorId: caseItem.operatorId, siteId: caseItem.siteId, amount: setAside, method, status: status === "failed" ? "failed" : "completed", reference: `SA-${caseItem.id}` });
+            if (status === "completed")
+              advance("paid", { state: "paid", actor: persona.name, role: "operator", note: `Set-aside ${formatCurrency(setAside)} paid via ${method.toUpperCase()}` }, `Payment of ${formatCurrency(setAside)} received — recorded to your account. Email + in-app confirmation sent.`);
+            else
+              setFlash("Payment declined — a failure notice was sent. You can retry from the payment window.");
+          } else if (gateway === "outbound") {
+            addPayment({ direction: "outbound", kind: outboundKind(), operatorId: caseItem.operatorId, siteId: null, amount: outboundAmount, method, status: "processing", reference: `OUT-${caseItem.id}` });
+            advance("paid", { state: "paid", actor: persona.name, role: persona.role, note: `${PAYMENT_KIND_LABEL[outboundKind()]} of ${formatCurrency(outboundAmount)} issued via ${method.toUpperCase()}` }, `Payment of ${formatCurrency(outboundAmount)} issued to ${operator?.name} — posted to their account statement (ACH settling).`);
+          }
+        }}
+      />
     </div>
   );
 }

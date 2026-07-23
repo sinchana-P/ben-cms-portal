@@ -26,6 +26,11 @@ export default function Payments() {
         description="Inbound (set-aside, loan repayment, initial stock) and outbound (reimbursements, commissions, stipends, loan disbursements) via Credit/Debit + ACH through the State Treasurer gateway."
       />
 
+      <div className="mb-4 flex items-start gap-2 rounded-lg border border-info/30 bg-info-soft/60 px-4 py-2.5 text-sm text-info">
+        <Landmark className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>Money moves through the State Treasurer-approved gateway (CyberSource): operators pay <strong>inbound</strong> by Card/ACH; Fiscal/Admin issue <strong>outbound</strong> disbursements by ACH/check. The system records status only — the gateway tokenizes payment details (PCI SAQ-A). Orchestrated by Koodisi.</span>
+      </div>
+
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <StatCard label="Inbound (completed)" value={formatCurrency(inTotal)} sub="set-aside & repayments" icon={ArrowDownLeft} tone="success" />
         <StatCard label="Outbound (completed)" value={formatCurrency(outTotal)} sub="reimbursements & disbursements" icon={ArrowUpRight} tone="info" />
