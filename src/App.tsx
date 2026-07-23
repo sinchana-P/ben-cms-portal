@@ -8,6 +8,9 @@ import Cases from "@/pages/staff/Cases";
 import Operators from "@/pages/staff/Operators";
 import OperatorDetail from "@/pages/staff/OperatorDetail";
 import Sites from "@/pages/staff/Sites";
+import SiteDetail from "@/pages/staff/SiteDetail";
+import AddSite from "@/pages/staff/AddSite";
+import SiteClosure from "@/pages/staff/SiteClosure";
 import Equipment from "@/pages/staff/Equipment";
 import Tickets from "@/pages/staff/Tickets";
 import Payments from "@/pages/staff/Payments";
@@ -22,6 +25,8 @@ import OperatorDashboard from "@/pages/operator/Dashboard";
 import NewSubmission from "@/pages/operator/NewSubmission";
 import Submissions from "@/pages/operator/Submissions";
 import MySites from "@/pages/operator/MySites";
+import ApplyNewSite from "@/pages/operator/ApplyNewSite";
+import MyApplications from "@/pages/operator/MyApplications";
 import MyEquipment from "@/pages/operator/MyEquipment";
 import MyTickets from "@/pages/operator/MyTickets";
 import MyAccount from "@/pages/operator/MyAccount";
@@ -46,6 +51,9 @@ export default function App() {
         <Route path="/staff/operators" element={<Operators />} />
         <Route path="/staff/operators/:id" element={<OperatorDetail />} />
         <Route path="/staff/sites" element={<Sites />} />
+        <Route path="/staff/sites/new" element={<AddSite />} />
+        <Route path="/staff/sites/:id" element={<SiteDetail />} />
+        <Route path="/staff/sites/:id/close" element={<SiteClosure />} />
         <Route path="/staff/equipment" element={<Equipment />} />
         <Route path="/staff/tickets" element={<Tickets />} />
         <Route path="/staff/payments" element={<Payments />} />
@@ -62,6 +70,9 @@ export default function App() {
         <Route path="/operator/submissions" element={<Submissions />} />
         <Route path="/operator/submissions/:id" element={<CaseDetail />} />
         <Route path="/operator/sites" element={<MySites />} />
+        <Route path="/operator/apply" element={<ApplyNewSite />} />
+        <Route path="/operator/apply/:announcementId" element={<ApplyNewSite />} />
+        <Route path="/operator/applications" element={<MyApplications />} />
         <Route path="/operator/equipment" element={<MyEquipment />} />
         <Route path="/operator/tickets" element={<MyTickets />} />
         <Route path="/operator/account" element={<MyAccount />} />

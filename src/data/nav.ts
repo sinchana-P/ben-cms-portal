@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, CheckSquare, FileText, Users, MapPin, Package,
   Wrench, CreditCard, BarChart3, Megaphone, Palette, ClipboardCheck,
-  ShieldCheck, FilePlus2, Receipt, FolderOpen, Accessibility,
+  ShieldCheck, FilePlus2, Receipt, FolderOpen, Accessibility, FileSearch,
 } from "lucide-react";
 import type { Portal, Role } from "@/types";
 
@@ -36,12 +36,13 @@ export const NAV: NavItem[] = [
   { to: "/operator", label: "My Dashboard", icon: LayoutDashboard, portal: "operator", roles: ["operator"] },
   { to: "/operator/new", label: "New Submission", icon: FilePlus2, portal: "operator", roles: ["operator"] },
   { to: "/operator/submissions", label: "My Submissions", icon: FileText, portal: "operator", roles: ["operator"], badgeKey: "acks" },
-  { to: "/operator/sites", label: "My Sites", icon: MapPin, portal: "operator", roles: ["operator"] },
+  { to: "/operator/sites", label: "My Site", icon: MapPin, portal: "operator", roles: ["operator"] },
   { to: "/operator/equipment", label: "My Equipment", icon: Package, portal: "operator", roles: ["operator"] },
   { to: "/operator/tickets", label: "My Tickets", icon: Wrench, portal: "operator", roles: ["operator"] },
   { to: "/operator/account", label: "My Account", icon: Receipt, portal: "operator", roles: ["operator"] },
   { to: "/operator/documents", label: "Documents", icon: FolderOpen, portal: "operator", roles: ["operator"] },
   { to: "/operator/announcements", label: "Announcements", icon: Megaphone, portal: "operator", roles: ["operator"] },
+  { to: "/operator/applications", label: "My Applications", icon: FileSearch, portal: "operator", roles: ["operator"] },
   { to: "/operator/accessibility", label: "Accessibility", icon: Accessibility, portal: "operator", roles: ["operator"] },
 ];
 
