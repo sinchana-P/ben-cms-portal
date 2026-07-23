@@ -80,6 +80,18 @@ export const OPERATORS: Operator[] = [
     outstandingLoanBalance: 0,
   },
   {
+    id: "op-robert",
+    name: "Robert Davis",
+    email: "robert.davis@benoperator.nv.gov",
+    phone: "(702) 555-0164",
+    status: "licensed",
+    licensedOn: "2020-03-01",
+    siteIds: ["site-mm-4"],
+    assignedBeoId: "beo-2",
+    visualAccommodation: "Screen reader (JAWS)",
+    outstandingLoanBalance: 0,
+  },
+  {
     id: "op-applicant-1",
     name: "Terrence Boyd",
     email: "terrence.boyd@example.com",

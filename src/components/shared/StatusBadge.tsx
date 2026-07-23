@@ -42,8 +42,10 @@ const MAP: Record<string, Meta> = {
   // site / generic
   active: { label: "Active", variant: "success", Icon: CheckCircle2 },
   onboarding: { label: "Onboarding", variant: "info", Icon: CircleDot },
-  open: { label: "Open", variant: "success", Icon: CircleDot },
+  open: { label: "Open — No Operator", variant: "info", Icon: CircleDot },
+  pending_closure: { label: "Pending Closure", variant: "destructive", Icon: AlertTriangle },
   awarded: { label: "Awarded", variant: "info", Icon: CheckCircle2 },
+  declined: { label: "Declined", variant: "destructive", Icon: XCircle },
 };
 
 export function StatusBadge({ state, label }: { state: string; label?: string }) {

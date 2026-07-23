@@ -20,18 +20,85 @@ export type Persona = {
   authMethod: "AD SSO (SAML)" | "MFA (username + password + OTP)";
 };
 
+export type SiteStatus = "active" | "onboarding" | "open" | "pending_closure" | "closed";
+export type PlStatus = "submitted" | "approved" | "due" | "overdue" | "none";
+
 export type Site = {
   id: string;
+  benId: string; // e.g. BEN-001 — the program-facing site id
   name: string;
   code: string;
   type: SiteType;
   hostAgency: string;
+  hostAgencyType: string;
+  hostContact: string;
+  hostEmail: string;
+  contractStart: string | null;
+  contractEnd: string | null;
   address: string;
+  city: string;
+  county: string;
+  building: string;
+  floor: string;
   operatorId: string | null;
-  status: "active" | "onboarding" | "closed";
+  status: SiteStatus;
   openedOn: string;
   contractOnFile: boolean;
+  setAsidePct: number; // % of NET profit (not gross)
   monthlyRevenue: number;
+  plStatus: PlStatus; // current month P&L status
+  routeStops?: { building: string; address: string; county: string }[];
+};
+
+/* ---- Site ⇄ Operator assignment (many-to-many with history) ----
+   The right way to move an operator: close the current assignment
+   (set endDate) and open a new row — never overwrite the site field. */
+export type AssignmentRole = "Primary" | "Relief" | "Trainee";
+export type SiteAssignment = {
+  id: string;
+  siteId: string;
+  operatorId: string;
+  role: AssignmentRole;
+  startDate: string;
+  endDate: string | null; // null = currently active
+  assignedBy: string; // BEO/Chief name
+  operatorStatusAtSite: "Licensed" | "Interim";
+  notes?: string;
+};
+
+/* ---- Site reviews (staff-initiated → operator signs) ---- */
+export type SiteReviewFlow = "staff_completed" | "sent_to_operator" | "operator_signed" | "finalised";
+export type SiteReview = {
+  id: string;
+  siteId: string;
+  kind: "monthly" | "annual";
+  period: string;
+  createdByBeo: string;
+  createdOn: string;
+  score: number | null;
+  flowState: SiteReviewFlow;
+};
+
+/* ---- P&L history rows per site ---- */
+export type SitePlRow = {
+  month: string;
+  status: "due" | "approved" | "overdue" | "submitted";
+  grossRevenue: number;
+  netProfit: number;
+  setAside: number;
+  payment: "paid" | "pending" | "due";
+};
+
+/* ---- New-site applications (simplified — no ranking) ---- */
+export type ApplicationStage = "submitted" | "beo_review" | "chief_interview" | "decision" | "assignment";
+export type SiteApplication = {
+  id: string;
+  announcementId: string;
+  siteName: string;
+  operatorId: string;
+  submittedOn: string;
+  stage: ApplicationStage;
+  outcome: "in_progress" | "awarded" | "declined";
 };
 
 export type OperatorStatus =
